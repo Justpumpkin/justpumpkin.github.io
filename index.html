@@ -6,13 +6,46 @@
 <title>⏱ 00:00.00</title>
 <style>
   :root { --bg:#000; --fg:#e6fffb; --hint: rgba(230,255,251,0.55); }
-  html,body {height:100%; margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial;}
-  .center {height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column;}
-  #display {font-size:18vw; line-height:0.9; font-weight:800; user-select:none; text-align:center; white-space:nowrap;}
-  .controls {position:fixed; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:8px; opacity:0.65; font-size:14px;}
-  button {background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); color:inherit; padding:8px 12px; border-radius:8px; cursor:pointer;}
-  button:active{transform:translateY(1px)}
-  .hint {position:fixed; top:10px; left:10px; font-size:12px; color:var(--hint); user-select:none;}
+  html,body {
+    height:100%; margin:0;
+    background:var(--bg); color:var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial;
+  }
+  .center {
+    height:100%;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column;
+  }
+  #display {
+    font-size:18vw;
+    line-height:0.9;
+    font-weight:800;
+    user-select:none;
+    text-align:center;
+    white-space:nowrap;
+
+    /* 애플 기기 떨림 방지 */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeSpeed;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+  .controls {
+    position:fixed; bottom:12px; left:50%; transform:translateX(-50%);
+    display:flex; gap:8px; opacity:0.65; font-size:14px;
+  }
+  button {
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.06);
+    color:inherit; padding:8px 12px;
+    border-radius:8px; cursor:pointer;
+  }
+  button:active { transform:translateY(1px) }
+  .hint {
+    position:fixed; top:10px; left:10px;
+    font-size:12px; color:var(--hint);
+    user-select:none;
+  }
 </style>
 </head>
 <body>
