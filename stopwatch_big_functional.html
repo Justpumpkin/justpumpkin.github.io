@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>⏱ 00:00.00</title>
+<style>
+  :root { --bg:#000; --fg:#e6fffb; --hint: rgba(230,255,251,0.55); }
+  html,body {height:100%; margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial;}
+  .center {height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column;}
+  #display {font-size:18vw; line-height:0.9; font-weight:800; user-select:none; text-align:center; white-space:nowrap;}
+  .controls {position:fixed; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:8px; opacity:0.65; font-size:14px;}
+  button {background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); color:inherit; padding:8px 12px; border-radius:8px; cursor:pointer;}
+  button:active{transform:translateY(1px)}
+  .hint {position:fixed; top:10px; left:10px; font-size:12px; color:var(--hint); user-select:none;}
+</style>
+</head>
+<body>
+<div class="center">
+  <div id="display" role="status" aria-live="polite">00:00.00</div>
+</div>
+
+<div class="hint">Space 시작/정지 • R 리셋 • F 전체화면 • 클릭으로도 시작/정지</div>
+
+<div class="controls" aria-hidden="true">
+  <button id="startStop">Start</button>
+  <button id="reset">Reset</button>
+  <button id="fullscreen">Fullscreen</button>
+</div>
+
+<script>
+(function(){
+  const display = document.getElementById('display');
+  const startStopBtn = document.getElementById('startStop');
+  const resetBtn = document.getElementById('reset');
+  const fsBtn = document.getElementById('fullscreen');
+
+  let startTime = 0;
+  let acc = 0;
+  let running = false;
+  let rafId = null;
+
+  function pad(n, digits=2){ return String(n).padStart(digits,'0'); }
+
+  function format(ms){
+    const total = Math.floor(ms);
+    const minutes = Math.floor(total / 60000);
+    const seconds = Math.floor((total % 60000) / 1000);
+    const centis = Math.floor((total % 1000) / 10);
+    return `${pad(minutes)}:${pad(seconds)}.${pad(centis)}`;
+  }
+
+  function update(ms){
+    const text = format(ms);
+    display.textContent = text;
+    document.title = "⏱ " + text;
+  }
+
+  function tick(){
+    const now = performance.now();
+    const ms = acc + (running ? now - startTime : 0);
+    update(ms);
+    if(running) rafId = requestAnimationFrame(tick);
+  }
+
+  function startStop(){
+    if(!running){
+      startTime = performance.now();
+      running = true;
+      startStopBtn.textContent = 'Stop';
+      rafId = requestAnimationFrame(tick);
+    } else {
+      acc += performance.now() - startTime;
+      running = false;
+      startStopBtn.textContent = 'Start';
+      if(rafId) cancelAnimationFrame(rafId);
+    }
+  }
+
+  function reset(){
+    running = false;
+    acc = 0;
+    startStopBtn.textContent = 'Start';
+    if(rafId) cancelAnimationFrame(rafId);
+    update(0);
+  }
+
+  startStopBtn.addEventListener('click', startStop);
+  resetBtn.addEventListener('click', reset);
+  fsBtn.addEventListener('click', () => {
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen().catch(()=>{});
+  });
+
+  window.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    if(tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+    if(e.code === 'Space' || e.key === ' '){ e.preventDefault(); startStop(); }
+    else if(e.key && e.key.toLowerCase() === 'r'){ reset(); }
+    else if(e.key && e.key.toLowerCase() === 'f'){ fsBtn.click(); }
+  });
+
+  display.addEventListener('click', startStop);
+
+  update(0);
+})();
+</script>
+</body>
+</html>
